@@ -97,8 +97,8 @@ void *sendmessage(){
         enviados = send(meu_socket,mensagem,strlen(mensagem),0);
         //pthread_mutex_unlock(&mutex);
 
-    }while(strcmp(mensagem,"exit")!=0);
-
+    }while(enviados != -1);
+    printf("Falha na conexão com o servidor!\n");
     pthread_mutex_destroy(&mutex);
     pthread_exit(NULL);
     close(meu_socket);         
