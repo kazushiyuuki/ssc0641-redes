@@ -4,6 +4,9 @@
 #include "time.h"
 #include "math.h"
 
+#define TIPO_ERRO 2
+#define QUANTIDADE_ERRO 80
+
 using namespace std;
 
 void AplicacaoTransmissora(void);

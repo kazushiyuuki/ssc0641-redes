@@ -1,4 +1,4 @@
-// https://lxp32.github.io/docs/a-simple-example-crc32-calculation/
+// Bibliotecas
 #include <iostream>
 #include <bitset>
 #include <vector>
@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// Funcao que simula a aplicacao transmissora, chama a camada de aplicacao
 void AplicacaoTransmissora(void)
 {
     string mensagem;
@@ -15,6 +16,8 @@ void AplicacaoTransmissora(void)
     CamadaDeAplicacaoTransmissora(mensagem);
 }
 
+//Funcao que simula a camada de aplicacao transmissora, gera o quadro e chama
+//a camada de enlace transmissora
 void CamadaDeAplicacaoTransmissora(string mensagem)
 {
     int len_msg = mensagem.length();
@@ -32,6 +35,8 @@ void CamadaDeAplicacaoTransmissora(string mensagem)
     CamadaEnlaceDadosTransmissora(quadro);
 }
 
+// Funcao que simula a camada de enlace transmissora
+// Chama a funcao de controle de erro de dados
 void CamadaEnlaceDadosTransmissora(vector<int> quadro)
 {
     cout << "Valor binario do quadro: ";
@@ -49,9 +54,10 @@ void CamadaEnlaceDadosTransmissora(vector<int> quadro)
     MeioDeComunicacao(&quadro);
 }
 
+//Funcao para adicionar os bits para deteccao de erro no quadro
 void CamadaEnlaceDadosTrasmissoraControleDeErro(vector<int> *quadro)
 {
-    int tipoDeControleDeErro = 2; // alterar de acordo com o teste
+    int tipoDeControleDeErro = TIPO_ERRO; // alterar de acordo com o teste
     switch (tipoDeControleDeErro)
     {
     case 0: // bit de paridade par
@@ -69,6 +75,7 @@ void CamadaEnlaceDadosTrasmissoraControleDeErro(vector<int> *quadro)
     }
 }
 
+//Funcao que adiciona o bit de paridade par no fim do quadro
 void CamadaEnlaceDadosTrasmissoraControleDeErroBitParidadePar(vector<int> *quadro)
 {
     int contador = 0;
@@ -80,6 +87,7 @@ void CamadaEnlaceDadosTrasmissoraControleDeErroBitParidadePar(vector<int> *quadr
     (*quadro).push_back(paridade(contador));
 }
 
+//Funcao que adiciona o bit de paridade impar no fim do quadro
 void CamadaEnlaceDadosTrasmissoraControleDeErroBitParidadeImpar(vector<int> *quadro)
 {
     int contador = 0;
@@ -91,6 +99,7 @@ void CamadaEnlaceDadosTrasmissoraControleDeErroBitParidadeImpar(vector<int> *qua
     (*quadro).push_back((paridade(contador) == 0) ? 1 : 0);
 }
 
+//Funcao que adiciona o resto da divisao dos dados pelo polinomio no padrao CRC32 IEEE802
 void CamadaEnlaceDadosTrasmissoraControleDeErroCRC(vector<int> *quadro)
 {
     // implementacao do algoritmo
@@ -104,12 +113,14 @@ void CamadaEnlaceDadosTrasmissoraControleDeErroCRC(vector<int> *quadro)
     free(hexa);
 }
 
+//Funcao que simula o meio de comunicacao, colocando erro na mensagem
+//Chama a camada de enlace receptora
 void MeioDeComunicacao(vector<int> *fluxoBrutoDeBits)
 {
     int erro, porcentagemDeErros;
     vector<int> fluxoBitsB;
 
-    porcentagemDeErros = 80;
+    porcentagemDeErros = QUANTIDADE_ERRO;
     for (auto i = (*fluxoBrutoDeBits).begin(); i != (*fluxoBrutoDeBits).end(); i++)
     {
         srand(time(NULL));
@@ -122,6 +133,9 @@ void MeioDeComunicacao(vector<int> *fluxoBrutoDeBits)
     CamadaEnlaceDadosReceptora(fluxoBitsB);
 }
 
+
+//Funcao que simula a camada de enlace de dados receptora
+//Chama funcao a funcao que simula a camada de aplicacao receptora
 void CamadaEnlaceDadosReceptora(vector<int> quadro)
 {
     cout << "Valor binario recebido: ";
@@ -139,9 +153,10 @@ void CamadaEnlaceDadosReceptora(vector<int> quadro)
     CamadaAplicacaoReceptora(&quadro);
 }
 
+// Funcao que detecta a existencia de erros no quadro recebido
 void CamadaEnlaceDadosReceptoraControleDeErro(vector<int> *quadro)
 {
-    int tipoDeControleDeErro = 2; // alterar de acordo com o teste
+    int tipoDeControleDeErro = TIPO_ERRO; // alterar de acordo com o teste
     switch (tipoDeControleDeErro)
     {
     case 0: // bit de paridade par
@@ -156,6 +171,7 @@ void CamadaEnlaceDadosReceptoraControleDeErro(vector<int> *quadro)
     }
 }
 
+//Funcao que detecta a existencia de erros, considerando paridade par
 void CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(vector<int> *quadro)
 {
     int contador = 0;
@@ -170,6 +186,7 @@ void CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(vector<int> *quadro)
     cout << "Valor binario sem bit de paridade par: ";
 }
 
+//Funco que detecta a existencia de erros, considerando paridade impar
 void CamadaEnlaceDadosReceptoraControleDeErroBitParidadeImpar(vector<int> *quadro)
 {
     int contador = 0;
@@ -184,11 +201,10 @@ void CamadaEnlaceDadosReceptoraControleDeErroBitParidadeImpar(vector<int> *quadr
     cout << "Valor binario sem bit de paridade impar: ";
 }
 
+//Funcao que detecta existencia de erros, considerando o CRC
 void CamadaEnlaceDadosReceptoraControleDeErroCRC(vector<int> *quadro)
 {
 
-    // implementacao do algoritmo
-    // usar polinomio CRC-32(IEEE 802)
     vector<int> novo_quadro;
     for (int i = 0; i < (*quadro).size() - 32; i++)
     {
@@ -216,6 +232,7 @@ void CamadaEnlaceDadosReceptoraControleDeErroCRC(vector<int> *quadro)
     cout << "Valor binario sem o R: " << endl;
 }
 
+//Funcao que simula da camada de aplicacao receptora
 void CamadaAplicacaoReceptora(vector<int> *quadro)
 {
     char *c = converte(quadro);
@@ -223,20 +240,21 @@ void CamadaAplicacaoReceptora(vector<int> *quadro)
     AplicacaoReceptora(c);
 }
 
+// Funcao que simula a aplicacao receptora, mostra a mensagem recebida
 void AplicacaoReceptora(char *mensagem)
 {
     cout << "Mensagem recebida: " << mensagem << endl;
     free(mensagem);
 }
 
+//Funcao que retorna se um numero e par ou impar
 int paridade(int num)
 {
-    if (num % 2 == 0)
-        return 0;
-    else
-        return 1;
+    return (num%2 == 0) ? 0:1;
 }
 
+// Funcao que converte o quadro em string para mostrar para aplicacao
+// e para a funcao de gerar o resto do CRC
 char *converte(vector<int> *quadro)
 {
 
@@ -256,6 +274,8 @@ char *converte(vector<int> *quadro)
     return vetor;
 }
 
+// Funcao que retorna o resto da divisao dos dados pelo polinomio no padrao
+// CRC-32(IEEE 802)
 uint32_t crc32(const char *s, size_t n)
 {
     uint32_t crc = 0xFFFFFFFF;
@@ -276,6 +296,7 @@ uint32_t crc32(const char *s, size_t n)
     return ~crc;
 }
 
+// Funcao principal que chama a aplicacao transmissora
 int main(void)
 {
     AplicacaoTransmissora();
